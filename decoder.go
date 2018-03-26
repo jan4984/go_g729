@@ -19,7 +19,7 @@ func (thiz *Decoder)Destroy(){
 }
 
 func (thiz *Decoder)Decode(data []byte) []byte{
-	if len(data) > 10 {
+	if len(data) != 10 {
 		panic("g729b one frame must less than 10 bytes")
 	}
 	decoded := make([]byte, 160)
@@ -27,17 +27,17 @@ func (thiz *Decoder)Decode(data []byte) []byte{
 	cEncoded := (*C.uint8_t)(unsafe.Pointer(&data[0]))
 
 	if len(data) == 0{
-		C.bcg729Decoder(thiz.dec, C.NULL, 0, 1, 0, 0, cDecoded)
+		C.bcg729Decoder(thiz.dec, (*C.uint8_t)(C.NULL), 0, 1, 0, 0, cDecoded)
 		return decoded
 	}
 
 
 	if len(data) < 8 {
 		//TODO: should consume 2 bytes every time decode in loop? or just decode once
-		C.bcg729Decoder(thiz.dec, cEncoded, len(data), 0, 1, 0, cDecoded)
+		C.bcg729Decoder(thiz.dec, cEncoded, C.uint8_t(len(data)), 0, 1, 0, cDecoded)
 		return decoded
 	}
 
-	C.bcg729Decoder(thiz.dec, cEncoded, len(data), 0, 0, 0, cDecoded)
+	C.bcg729Decoder(thiz.dec, cEncoded, C.uint8_t(len(data)), 0, 0, 0, cDecoded)
 	return decoded
 }
