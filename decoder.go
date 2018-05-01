@@ -19,15 +19,17 @@ func (thiz *Decoder)Destroy(){
 }
 
 func (thiz *Decoder)Decode(data []byte) []byte{
-	if len(data) != 10 {
-		panic("g729b one frame must less than 10 bytes")
-	}
 	decoded := make([]byte, 160)
 	cDecoded := (*C.short)(unsafe.Pointer(&decoded[0]))
-	cEncoded := (*C.uint8_t)(unsafe.Pointer(&data[0]))
+	var cEncoded *C.uint8_t
+	if len(data) > 0 {
+		cEncoded = (*C.uint8_t)(unsafe.Pointer(&data[0]))
+	}else{
+		cEncoded = (*C.uint8_t)(C.NULL)
+	}
 
 	if len(data) == 0{
-		C.bcg729Decoder(thiz.dec, (*C.uint8_t)(C.NULL), 0, 1, 0, 0, cDecoded)
+		C.bcg729Decoder(thiz.dec, cEncoded, 0, 1, 0, 0, cDecoded)
 		return decoded
 	}
 
